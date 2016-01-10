@@ -2,13 +2,15 @@
  *
  * Binary Tree 
  *
- *
+ * g++ -g -DDEBUG -o tree Tree.cpp
  *
  *-------------------------------------------------------------------------*/
 
 #include <iostream>
 #include <cassert>
 #include <stack>
+#include <queue>
+#include <climits>
 
 using namespace std;
 
@@ -129,64 +131,362 @@ class Tree {
 		}
 
 		void inorder_iterative(TreeNode *root) {
-			
+			bool done = false;
 			stack<TreeNode*> s;	
 			TreeNode *curr = rootp_;
 
-			while (curr) {
+			while (!done) {
+
+				//
+				// store inorder predecessor
+				//	
+
+				s.push(curr);
 
 				if (curr->leftp_) {
 
-					//
-					// store inorder successor
-					//	
-
-					s.push(curr);
 					curr = curr->leftp_;
 
 				} else if (curr->rightp_) {
 
-						//
-						// visit inorder successor
-						//	
+					s.pop();
 
-						cout << curr->data_ << "  ";
-						curr = curr->rightp_;
+					//
+					// visit inorder successor
+					//	
+					cout << curr->data_ << "  ";
+
+					curr = curr->rightp_;
+
 				} else {
 					//
 					// pop stack to get the inorder successors
 					//	
 
-					assert(s.size());
-					for (curr = s.top(); s.size(); curr = s.top(), s.pop() ) {
+					while(s.size()) {
+
+						curr = s.top();
+						s.pop();
 
 						//
 						// visit inorder successor
 						//	
 
 						cout << curr->data_ << "  ";
+
 						if (curr->rightp_) 
 							break;
-					}
+					};
 
-					if (curr->rightp_) 
+					if (curr->rightp_)
 						curr = curr->rightp_;
 					else
-					  curr = 0;	
-				}		
-
+						done = true;
+				}
+			
 			};
 
 		}
 
 		void preorder_iterative(TreeNode *root) {
 
+			bool done = false;
+
+			stack<TreeNode *> s;
+
+			TreeNode *curr = rootp_;
+			
+			while (!done) {
+
+				//
+				// Visit	
+				//
+				
+				cout << curr->data_ << "  ";
+
+				if ((curr->leftp_) && (curr->rightp_)) {
+
+					//
+					// Store PreOrder Successor	
+					//
+
+					s.push(curr->rightp_);
+
+					curr = curr->leftp_;
+
+				} else if (curr->leftp_) {
+
+					curr = curr->leftp_;
+
+				} else if (curr->rightp_) {
+
+					curr = curr->rightp_;
+
+				} else {
+
+					//
+					// Pop PreOrder Successor
+					//
+
+					if (s.size()) {
+						curr = s.top();
+						s.pop();
+					} else {
+						done = true;
+					}
+				}
+			};
 		}
 
 		void postorder_iterative(TreeNode *root) {
 
+			stack<TreeNode *> ps, cs;
+
+			TreeNode *curr = rootp_;
+
+			cs.push(curr);
+
+			while (cs.size()) {
+			
+				curr = cs.top();
+
+				cs.pop();
+
+				ps.push(curr);
+
+				if (curr->leftp_)
+					cs.push(curr->leftp_);
+
+				if (curr->rightp_)
+					cs.push(curr->rightp_);
+				
+			};	
+
+			while (ps.size()) {
+
+				curr = ps.top();
+
+				ps.pop();
+
+				cout << curr->data_ << "  ";
+			};
+
 		}
 
+		void inorder_stackless(TreeNode *root) {
+
+			TreeNode *curr = rootp_;
+
+			TreeNode *temp = 0;
+
+			while (curr) {
+
+				if (curr->leftp_) {
+
+					//
+					//	Check if node threaded
+					//
+
+					temp = curr->leftp_;
+
+					while (temp->rightp_) {
+						if (temp->rightp_ == curr) 
+							break;
+						temp = temp->rightp_;
+					};
+
+					//
+					//	thread/dethread
+					//
+
+					if (!temp->rightp_) {
+
+						// down
+						
+						temp->rightp_ = curr;
+						curr = curr->leftp_;	
+					} else  {
+
+						//up
+						
+						temp->rightp_ = 0;
+						cout << curr->data_ << "  ";
+						curr = curr->rightp_;  
+					}
+						
+						
+				} else if (curr->rightp_) {
+
+					//
+					//	inorder sucessor
+					//					
+					//
+
+					cout << curr->data_ << "  ";
+
+					curr = curr->rightp_;
+
+				} else {
+
+					//
+					// rightmost
+					//
+					cout << curr->data_ << endl;
+					break;
+				}
+					
+			};
+
+
+
+		}
+
+		void preorder_stackless(TreeNode *root) {
+			
+			TreeNode *curr = rootp_;
+
+			TreeNode *temp = 0;
+
+			while (curr) {
+
+
+				if (curr->leftp_) {
+
+					//
+					//	Check if node threaded
+					//
+
+					temp = curr->leftp_;
+
+					while (temp->rightp_) {
+						if (temp->rightp_ == curr) 
+							break;
+						temp = temp->rightp_;
+					};
+
+					//
+					//	thread/dethread
+					//
+
+					if (!temp->rightp_) {
+
+						// down
+						
+						temp->rightp_ = curr;
+
+						cout << curr->data_ << "  ";
+						curr = curr->leftp_;	
+
+					} else  {
+
+						//up
+						
+						temp->rightp_ = 0;
+						curr = curr->rightp_;  
+					}
+						
+				} else if (curr->rightp_) {
+
+					//
+					//	inorder sucessor
+					//					
+					//
+
+					cout << curr->data_ << "  ";
+
+					curr = curr->rightp_;
+
+				} else {
+
+					//
+					// rightmost
+					//
+					cout << curr->data_ << endl;
+					break;
+				}
+			};
+
+		}
+
+		void postorder_stackless(TreeNode *root) {
+
+			TreeNode *curr = rootp_;
+
+			TreeNode *temp = 0;
+
+			while (curr) {
+			
+				if (curr->rightp_) {
+
+					temp = curr->rightp_;
+
+					while (temp->leftp_) {
+						if (temp->leftp_ == curr)
+							break;
+						temp = temp->leftp_;
+					}
+				
+					if (!temp->leftp_) {
+						// Down
+						temp->leftp_ = curr;
+						cout << curr->data_ << "  ";
+						curr = curr->rightp_;
+					} else {
+						// Up
+						temp->leftp_ = 0;
+						curr = curr->leftp_;
+					}
+
+				} else if (curr->leftp_) {
+
+					cout << curr->data_ << "  ";
+					curr = curr->leftp_;
+
+				} else {
+					
+					cout << curr->data_ << "  ";
+					break;
+				}			
+			};
+
+		}
+
+
+		void serializeBSTUtil(TreeNode *root, queue<int>& q) {
+
+			if (!root) 
+				return;
+
+			q.push(root->data_);
+			serializeBSTUtil(root->leftp_, q);
+			serializeBSTUtil(root->rightp_, q);
+			return;
+		}
+
+
+		TreeNode* deserializeBSTUtil(int low, int high, queue <int>& q) {
+
+			int key;
+
+			TreeNode *nodep = 0;
+
+			if (q.size())
+				return 0;
+
+			key = q.front();
+
+			if ((key < high) && (key > low)) {
+
+				q.pop();
+				nodep = new TreeNode(key);
+				nodep->leftp_  = deserializeBSTUtil(low, nodep->data_, q);
+				nodep->rightp_ = deserializeBSTUtil(nodep->data_, high, q);
+			}
+
+			return nodep;
+
+		}
+			 
 	public :
 
 		TreeNode *rootp_;
@@ -198,7 +498,7 @@ class Tree {
 		}
 
 	       ~Tree() {
-			cout << "deleting tree\t:";
+			cout << "\ndeleting tree\t:";
 			destroy_tree(rootp_);
 			rootp_ = 0;
 			cout << endl;
@@ -253,18 +553,45 @@ class Tree {
 					inorder_iterative(rootp_);
 					cout << endl;
 					break;
+				case INORDER_STACKLESS:
+					cout << "inorder \t:";			
+					inorder_stackless(rootp_);
+					cout << endl;
+					break;
 
 				case PREORDER_RECURSIVE:
-
 					cout << "preorder\t:";			
 					preorder_recursive(rootp_);
 					cout << endl;
 					break;
 
+				case PREORDER_ITERATIVE:
+					cout << "preorder \t:";			
+					preorder_iterative(rootp_);
+					cout << endl;
+					break;
+
+				case PREORDER_STACKLESS:
+					cout << "preorder \t:";			
+					preorder_stackless(rootp_);
+					cout << endl;
+					break;
+
 				case POSTORDER_RECURSIVE:
-	
 					cout << "postorder\t:";			
 					postorder_recursive(rootp_);
+					cout << endl;
+					break;
+
+				case POSTORDER_ITERATIVE:
+					cout << "postorder\t:";			
+					postorder_iterative(rootp_);
+					cout << endl;
+					break;
+
+				case POSTORDER_STACKLESS:
+					cout << "postorder\t:";			
+					postorder_stackless(rootp_);
 					cout << endl;
 					break;
 
@@ -275,6 +602,40 @@ class Tree {
 
 		}
 
+	
+		queue<int> serializeBST() {
+				queue<int> q;
+
+				serializeBSTUtil(rootp_, q);
+
+				#if DEBUG
+				queue<int> qdbg = q;
+
+				cout << "serialize\t:";
+				while (qdbg.size()) {
+					cout << qdbg.front() << "  ";
+					qdbg.pop();
+				}
+				cout << endl;
+				#endif
+
+				return q;
+		}
+
+		TreeNode* deserializeBST(queue<int>& q) {
+		
+				TreeNode *rootp;
+
+				rootp = deserializeBSTUtil(INT_MIN, INT_MAX, q);
+
+				#if DEBUG
+				cout << "deserialize\t:";			
+				preorder_iterative(rootp);		
+				cout << endl;
+				#endif
+
+				return rootp;
+		}
 };
 			
 int main(void) {
@@ -290,7 +651,14 @@ int main(void) {
 	cout << "Test BST\t:" << (tree->isBST() ? "True" : "False") << endl;
 	tree->traverse(Tree::INORDER_RECURSIVE);
 	tree->traverse(Tree::INORDER_ITERATIVE);
+	tree->traverse(Tree::INORDER_STACKLESS);
 	tree->traverse(Tree::PREORDER_RECURSIVE);
+	tree->traverse(Tree::PREORDER_ITERATIVE);
+	tree->traverse(Tree::PREORDER_STACKLESS);
 	tree->traverse(Tree::POSTORDER_RECURSIVE);
+	tree->traverse(Tree::POSTORDER_ITERATIVE);
+	tree->traverse(Tree::POSTORDER_STACKLESS);
+	queue<int> q = tree->serializeBST();
+	tree->deserializeBST(q);
 	delete tree;
 }
