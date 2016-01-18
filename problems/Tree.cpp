@@ -636,6 +636,326 @@ class Tree {
 
 				return rootp;
 		}
+		
+		int size(TreeNode *root) {
+		    
+		    if (!root)
+		        return 0;
+		        
+		    return (1 + size(root->leftp_) + size(root->rightp_));
+		}
+		
+		int identicalTrees(TreeNode *root1, TreeNode *root2) {
+		    
+		    if ((!root1) && (!root2))
+		           return 0;
+		   
+		    if ((!root1) || (!root2) || (root1->data_ != root2->data_))
+		           return -1;
+		    
+		    if (identicalTrees(root1->leftp_, root2->leftp_) == 0 && identicalTrees(root1->rightp_, root2->rightp_) == 0)
+		        return 0;
+		    else
+		        return -1;
+		 }
+		 
+		int max_height(TreeNode *root) {
+		    
+		    if (!root)
+		         return 0;
+		         
+		    return 1 + max(max_height(root->leftp_), max_height(root->rightp_));
+		} 
+		
+		void Mirror (TreeNode *rootp) {
+		    
+		  if (!rootp)
+		        return;
+		        
+		  TreeNode *child = rootp->leftp_;
+		  
+		  rootp->leftp_ = rootp->rightp_;      
+		  rootp->rightp_ = child;
+		  
+		  Mirror(rootp->leftp_);
+		  Mirror(rootp->rightp_);
+		  
+		  return;
+		}
+		
+		
+		TreeNode *LCA(TreeNode *root, int key1, int key2) {
+		    
+		    if (!root)
+		        return 0;
+		    
+		    if ((key1 < root->data_) && (key2 < root->data_))
+		      return LCA(root->leftp_, key1, key2);
+		    else if ((key1 > root->data_) && (key2 > root->data_))
+		      return LCA(root->rightp_, key1, key2);
+		    else 
+		      return root;
+		 }  
+		 
+		int LCAUtil(TreeNode *root, int key1, int key2, TreeNode **node) {
+		  
+		     int countmatch = 0;        
+		     
+		     if (!root)
+		        return 0;
+		        
+		     countmatch = LCAUtil(root->leftp_, key1, key2, node) + LCAUtil(root->rightp_, key1, key2, node);
+		     if ((key1 == root->data_) || (key2 == root->data_))
+		         countmatch+=1;
+		         
+		     if (countmatch == 2) {
+		         *node = root;
+		         countmatch = 0;
+		     }       
+		     return countmatch;            
+		} 
+		 
+		TreeNode *LCABT(TreeNode *root, int key1, int key2) {
+		    
+		    if (!root)
+		        return 0;
+		        
+		    TreeNode *L = LCABT(root->leftp_, key1, key2);
+		    
+		    TreeNode *R = LCABT(root->rightp_, key1, key2);
+		    
+		    if (L && R)
+		        return root;
+		        
+		    if ((key1 == root->data_) || (key2 ==  root->data_))
+		        return root;
+		        
+		    return L ? L : R;
+		}   
+		
+		int max_sum_ = 0;
+		
+		void maxsum(TreeNode *root, int *sum) {
+		   
+		      if (!root)
+		        return;
+		        
+		     *sum+=root->data_;  
+		      
+		      maxsum(root->leftp_, sum);
+		      maxsum(root->rightp_, sum);
+		      
+	          if ((*sum > max_sum_) && (!root->leftp_) && (!root->rightp_))
+		          max_sum_ = *sum;
+		          
+		     *sum-=root->data_;
+		      return;
+		 }
+	
+		TreeNode* insert(TreeNode *node, int key) {
+		    
+		   if (!node)
+		        return new TreeNode(key);
+		        
+		   if (key < node->data_)
+		        node->leftp_ =  insert(node->leftp_, key);
+		   else
+		        node->rightp_ = insert(node->rightp_, key);
+		        
+		   return node;
+		}  
+		        
+		TreeNode *PostOrder2BST(int array[], int start, int end) {
+		    
+		   int mid  = -1;
+		   
+		   if (start > end)
+		        return 0;
+	
+	       TreeNode* node = new TreeNode(array[end]);
+		    
+	       for (int i = end - 1; i >= start; i--) {
+	           if (array[i] > node->data_)
+	                mid = i;
+	       }
+	
+	        node->leftp_  = PostOrder2BST(array, start, mid -1);
+		    node->rightp_ = PostOrder2BST(array, mid, end - 1);
+		    
+		    return node;
+		}
+		
+		int max_path_sum_ = 0;
+		
+		int MaxSumPath(TreeNode *node) {
+		    
+		    if (!node)
+		        return 0;
+		        
+		    int lsum = MaxSumPath(node->leftp_);
+		    int rsum = MaxSumPath(node->rightp_);
+		    
+		    int p_sum  = max(max(node->data_ + lsum, node->data_ + rsum), node->data_);
+		    int m_sum  = max(p_sum, node->data_ + lsum + rsum);
+		    
+		    int sum = max(p_sum, m_sum);
+		    max_path_sum_ = max_path_sum_ < sum ? sum : max_path_sum_;
+		          
+		    return p_sum; 
+		 }
+		
+		
+		 void LevelOrderTraversal(void) {
+		     
+		     queue<TreeNode*> q;
+		  
+		  cout << "LevelOrderTraversal :";         
+		     q.push(rootp_);  
+		     while (!q.empty()) {
+		         
+		         TreeNode *node = q.front();
+		         cout << node->data_ << "  ";
+		         q.pop();
+		         if (node->leftp_)
+		             q.push(node->leftp_);
+		         if (node->rightp_)
+		             q.push(node->rightp_);
+		     }     
+		     cout << endl;
+		 }
+		 
+		 int countLeaves(TreeNode *root) {
+		     if (!root)
+		        return 0;
+		     else if (!(root->leftp_) && !(root->rightp_))  
+		        return 1;
+		     else
+		        return countLeaves(root->leftp_) + countLeaves(root->rightp_);
+		 }   
+		 
+		 void SpiralOrderTraversal(void) {
+		     
+		  queue<TreeNode*> q;
+		  stack<TreeNode*> s;
+		  
+		  cout << "SpiralOrderTraversal :\n";    
+		  
+		     s.push(rootp_);  
+		     while (!q.empty() || !s.empty()) {
+		         
+		         while (!s.empty()) {
+		            TreeNode *node = s.top();
+		            cout << node->data_ << "  ";
+		            s.pop();
+		            if (node->rightp_)
+		                 q.push(node->rightp_);
+		            if (node->leftp_)
+		                 q.push(node->leftp_);
+		         };
+		         cout << endl;
+		         while (!q.empty()) {
+		            TreeNode *node = q.front();
+		            cout << node->data_ << "  ";
+		            q.pop();
+		            if (node->rightp_)
+		                 s.push(node->rightp_);
+		            if (node->leftp_)
+		                 s.push(node->leftp_);
+		         };
+		         cout << endl;
+		     }; 
+		     cout << endl;
+		 }
+		       
+		 int SumCheck(TreeNode *node) {
+
+		     if (!node || ((!node->leftp_) && (!node->rightp_)))  
+		        return 1;
+		     else {
+		            int ldata = 0;
+		            int rdata = 0;
+		            
+		            if (node->leftp_)
+		                    ldata = node->leftp_->data_;
+		            if (node->rightp_)
+		                    rdata = node->rightp_->data_;
+		                    
+		            if ((node->data_ ==  ldata + rdata)
+		                    && SumCheck(node->leftp_) && SumCheck(node->rightp_))
+		                    return 1;
+		            else
+		                    return 0;
+		     }
+		 }
+		 
+		 int diameter_ = 0;
+		 
+		 int diameter(TreeNode *root) {
+		     
+		     if (!root)
+		        return 0;
+		        
+		     int l = diameter(root->leftp_);
+		     int r = diameter(root->rightp_);
+		     int s = 1 + max(l, r);
+		     
+		     if (1 + l + r > diameter_)
+		        diameter_ = 1 + l + r;
+		           
+		     return s;
+		        
+		  }
+		  
+		  void inorder_iterative(void) {
+		      
+		      bool done = false;
+		      
+		      stack<TreeNode*> s;
+		            
+		      TreeNode *node = rootp_;
+		      
+		      if (!node)
+		        return;
+		        
+		      s.push(node);
+		      
+		      cout << "inorder_iterative :";
+		      while (!done) {
+		      
+		          if (node->leftp_) {
+		            node = node->leftp_;
+		            s.push(node);
+		          } else {
+		            while (!s.empty()) {
+		                    node = s.top();         
+		                    cout << node->data_ << " ";
+		                    s.pop();
+		                    if (node->rightp_) {
+		                        node = node->rightp_;
+		                        s.push(node);
+		                        break;
+		                    }      
+		            };
+		            
+		            if (s.empty())
+		                done = true;
+		          }
+		      };
+		      cout << endl;
+		  }    
+
+          int root_to_leaf_path(TreeNode *node, int sum) {
+              
+            if (!node)
+                return 0;
+                
+            if ((!node->leftp_) && (!node->rightp_))
+                return (sum - node->data_) ? 0 : 1;
+            else
+                return (root_to_leaf_path(node->leftp_,  sum - node->data_) || 
+                       (root_to_leaf_path(node->rightp_, sum - node->data_)));
+          } 
+
 };
 			
 int main(void) {
@@ -660,5 +980,55 @@ int main(void) {
 	tree->traverse(Tree::POSTORDER_STACKLESS);
 	queue<int> q = tree->serializeBST();
 	tree->deserializeBST(q);
-	delete tree;
+	cout << "Tree Size " << tree->size(tree->rootp_) << endl; 
+	
+	Tree *tree2 = new Tree(100);
+	tree2->insert(25);
+	tree2->insert(50);
+	tree2->insert(200);
+    tree2->insert(250);
+	tree2->insert(150);
+	tree2->insert(80);
+	tree2->insert(75);
+
+	cout << "Identical Trees : " << tree->identicalTrees(tree->rootp_, tree2->rootp_) << endl;
+	cout << "Max height :" << tree->max_height(tree->rootp_) << endl;
+	cout << "Max height :" << tree2->max_height(tree2->rootp_) << endl;
+	
+	tree->Mirror(tree->rootp_);
+	tree->traverse(Tree::PREORDER_STACKLESS);
+	TreeNode *res = tree->LCA(tree->rootp_, 200, 250);
+	if (res)
+	     cout << "LCA " << res->data_ << endl;
+	
+	TreeNode *node = 0;     
+	tree2->LCAUtil(tree2->rootp_, 200, 250, &node);
+	if (node)
+	    cout << "LCA " << node->data_ << endl;
+	
+	cout << "LCA " << tree2->LCABT(tree2->rootp_, 200, 250)->data_ << endl;
+	
+	int sum = 0;
+	tree->maxsum(tree->rootp_, &sum);
+	cout << "Max Path Sum " << tree->max_sum_ << endl;
+
+    Tree *tree3 = new Tree(100);
+	tree3->insert(50);
+    tree3->insert(200);
+	tree3->insert(150);
+	tree3->insert(250);
+	tree3->insert(125);
+
+    tree3->MaxSumPath(tree3->rootp_);
+    
+    cout << "Max Sum Path " << tree3->max_path_sum_ << endl;
+	tree3->LevelOrderTraversal();
+	tree3->SpiralOrderTraversal();
+	
+	tree3->diameter(tree3->rootp_);
+	cout << "diameter :" << tree3->diameter_ << endl;
+	tree3->inorder_iterative();
+    delete tree;
+	delete tree2;
+	delete tree3;
 }
