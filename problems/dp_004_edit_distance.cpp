@@ -4,7 +4,7 @@
  *
  * Date : 03/27/2016
  *
- * Test Case : "sea" "eat" : should give 2
+ * Test Case : "sea" "eat" : should give 2:
  * ----------------------------------------------------------------------------------*/
 #include <iostream>
 #include <vector>
@@ -42,7 +42,7 @@ class Solution {
 
 					if (s1.at(p) == s2.at(q))
 						ed_[p][q] = ed_[p - 1][q - 1];
-					else
+					else			// substitute      // delete       // insert
 						ed_[p][q] = MIN(ed_[p - 1][q - 1], ed_[p][q - 1], ed_[p - 1][q]) + 1;
 					
 					cout << ed_[p][q] << " ";
