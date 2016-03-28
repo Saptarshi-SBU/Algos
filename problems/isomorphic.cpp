@@ -5,52 +5,55 @@
  * ---------------------------------------------------------------*/
 
 #include <iostream>
+#include <map>
 #include <unordered_map>
 
 using namespace std;
 
-class Isomorphic {
+class Solution {
 
-	unordered_map<char, char> map_;
+public:
 
-	public:
+    bool isIsomorphic(string s, string t) {
+	 if (s.empty() && t.empty())
+            return true;
 
-	bool checkIsomorphic(string s1, string s2) {
+        if (s.empty() || t.empty())
+            return false;
 
-		int i = 0;
-		int p = 0;
+        if (s.length() != t.length())
+            return false;
 
-		if (s1.length() != s2.length())
-			return false;
+        unordered_map<char, int> smap;
+        unordered_map<char, int> tmap;
 
-		p = s1.length();
-
-		while (i < p) {
-			if (map_.find(s1.at(i)) == map_.end()) {
-				map_[s1.at(i)] = s2.at(i);
-			} else if (map_[s1.at(i)] != s2.at(i)) {
-				return false;
-			} 
-			i++;
-		}		
-		return true;
-	}
-
-	void print_map(void) {
-		
-		for (auto i : map_)
-			cout << i.first << endl;
-	}
-}; 
+        string::iterator it1, it2; 
+        for (it1 = s.begin(), it2 = t.begin(); it1 != s.end(); it1++, it2++) {
+            if ((smap.find(*it1) == smap.end()) && (tmap.find(*it2) == tmap.end())) {
+                 smap[*it1] = *it2;
+                 tmap[*it2] = *it1;
+            } else if ((smap.find(*it1) != smap.end()) && (tmap.find(*it2) != tmap.end())) {
+                 if ((*it1 != tmap[*it2]) || (*it2 != smap[*it1]))
+                    return false;
+            } else
+                 return false;    
+        }
+        return true;
+    }
+};
 
 int main(void) {
 
 	const string s1 = "abbcd";
 	const string s2 = "xyyzk";
 
-	Isomorphic *p = new Isomorphic();
-	cout << "Isomorphic : " << p->checkIsomorphic(s1, s2) << endl;
-	//p->print_map();	
+	//const string s1 = "abecd";
+	//const string s2 = "xyyzk";
+
+	Solution *sol = new Solution();
+	cout << "Isomorphic : " << sol->isIsomorphic(s1, s2) << endl;
+	
+	delete sol;
 	return 0;
 }
 
